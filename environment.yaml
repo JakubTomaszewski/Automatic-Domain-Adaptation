@@ -1,0 +1,11 @@
+name: auto_adap
+channels:
+  - conda-forge
+dependencies:
+  - pip=24.2
+  - python=3.11.9
+  - pip:
+      - gdown
+      - torch
+      - torchvision
+      - tqdm
