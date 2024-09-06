@@ -1,0 +1,1 @@
+from .dinov2_classifier import DINOv2Classifier
