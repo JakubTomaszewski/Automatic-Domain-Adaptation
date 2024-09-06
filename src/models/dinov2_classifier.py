@@ -15,15 +15,13 @@ class DINOv2Classifier(nn.Module):
         self.device = device
         self.layers = layers
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
-        self.classification_head = nn.Linear((1 + layers) * self.backbone.embed_dim, num_classes)
-        # TODO: check more linear layers
-        # self.classifier = nn.Sequential(
-        #     nn.Linear(384, 256),
-        #     nn.ReLU(),
-        #     nn.Linear(256, 2)
-        # )
+        self.classification_head = nn.Sequential(
+            nn.Linear((1 + layers) * self.backbone.embed_dim, 256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes)  
+        )
 
-    def forward(self, x):
+    def forward(self, x, labels=None):
         if self.layers == 1:
             x = self.backbone.forward_features(x)
             cls_token = x["x_norm_clstoken"]
@@ -43,7 +41,12 @@ class DINOv2Classifier(nn.Module):
             ], dim=1)
         else:
             assert False, f"Unsupported number of layers: {self.layers}"
-        return self.classification_head(linear_input)
+        logits = self.classification_head(linear_input)
+        
+        loss = None
+        if labels is not None:
+            loss = nn.CrossEntropyLoss()(logits, labels)
+        return {"logits": logits, "loss": loss} if loss is not None else {"logits": logits}
     
     def predict(self, x):
-        return self.forward(x).argmax(dim=-1)
+        return self.forward(x)["logits"].argmax(dim=-1)

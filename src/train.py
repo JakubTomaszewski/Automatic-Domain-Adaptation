@@ -1,78 +1,38 @@
 import torch
-import torch.nn as nn
 
-from tqdm import tqdm
-from torch.optim import AdamW, Optimizer
-from torch.utils.data import DataLoader
-from torch.nn import CrossEntropyLoss
+from torch.optim import AdamW
+from torch.optim.lr_scheduler import PolynomialLR
+from transformers import Trainer, TrainingArguments
 
-from models import DINOv2Classifier
-from config import parse_args
 from logger import logger
+from config import parse_args
+from models import DINOv2Classifier
+from utils.metrics import compute_metrics
 from data_loading.datasets import get_dataset
 from data_loading.processing import create_data_transformation_pipeline
 
 
-def train_one_epoch(model: nn.Module, 
-                    dataloader: DataLoader, 
-                    optimizer: Optimizer, 
-                    loss: callable, 
-                    device):
-    model.train()
-    for idx, data in enumerate(dataloader):
-        img = data["img"].to(device)
-        label = data["label"].to(device)
-        
-        output = model(img)
-        loss_value = loss(output, label)
-        
-        optimizer.zero_grad()
-        loss_value.backward()
-        optimizer.step()
-        
-        logger.info(f"Batch: {idx}, Loss: {loss_value.item()}")
-
-
-def train_one_epoch(model, dataloader, optimizer, loss_fn, device):
-    loss_history = []
-    
-    model.train()
-    for i, data in tqdm(enumerate(dataloader)):
-        X, y = data["img"].to(device), data["label"].to(device)
-
-        outputs = model(X)
-        loss = loss_fn(outputs, y)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        loss_history.append(loss.item())
-
-        if i % 100 == 0:
-            logger.info(f"Batch: {i}, Loss: {loss.item()}")
-    logger.info(f"Loss after epoch {i}: {sum(loss_history) / len(loss_history)}")
-
-
-def evaluate(model, dataloader, loss_fn, device):
-    loss_history = []
-
-    model.eval()
-    with torch.no_grad():
-        for data in tqdm(dataloader):
-            X, y = data["img"].to(device), data["label"].to(device)
-            outputs = model(X)
-            loss = loss_fn(outputs, y)
-            loss_history.append(loss.item())
-
-    logger.info(f"Validation Loss: {sum(loss_history) / len(loss_history)}")
+def create_training_args(args):   
+    return TrainingArguments(
+        output_dir=args.output_dir,
+        num_train_epochs=args.epochs,
+        per_device_train_batch_size=args.batch_size,
+        per_device_eval_batch_size=args.eval_batch_size,
+        learning_rate=args.learning_rate,
+        eval_strategy="epoch",
+        save_strategy="epoch",
+        load_best_model_at_end=True,
+        no_cuda=args.device != torch.device('cuda'),
+        warmup_steps=500
+    )
 
 
 if __name__ == '__main__':
     args = parse_args()
-    
-    logger.info(f"Arguments: {args}")
-    
+    training_args = create_training_args(args)
+
+    logger.info(f"Training arguments: {training_args}")
+
     # Transformation pipeline
     transforms = create_data_transformation_pipeline(args.img_size)
     
@@ -84,19 +44,20 @@ if __name__ == '__main__':
                               transforms=transforms,
                               is_test=True)
 
-    # Dataloader
-    train_dataloader = DataLoader(train_dataset, args.batch_size, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, args.batch_size, shuffle=False)
-
     # Model
     model = DINOv2Classifier(args.num_classes, backbone=args.dinov2_backbone, layers=1, device=args.device).to(args.device)
 
     # Optimizer
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
-    loss = CrossEntropyLoss()
+    lr_scheduler = PolynomialLR(optimizer)
+    
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        eval_dataset=val_dataset,
+        optimizers=(optimizer, lr_scheduler),
+        compute_metrics=compute_metrics
+    )
 
-    # training loop
-    for epoch in range(args.epochs):
-        logger.info(f"Epoch: {epoch}")
-        train_one_epoch(model, train_dataloader, optimizer, loss, args.device)
-        evaluate(model, val_dataloader, loss, args.device)
+    trainer.train()

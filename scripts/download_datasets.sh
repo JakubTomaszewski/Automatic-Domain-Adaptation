@@ -12,26 +12,26 @@ gdown https://drive.google.com/uc?id=1em51XXz5_aBNRJlJxxv3-Ed1dO9H3QgS
 
 
 echo "Unzipping datasets... (this may take a while)"
-echo "MVTEC AD"
-unzip -qq mvtec_anomaly_detection.zip
+echo "Unzipping MVTEC AD"
+unzip -qq mvtec_anomaly_detection.zip -d mvtec_anomaly_detection
 
-echo "VisA"
-unzip -qq VisA_20220922.zip
+echo "Unzipping VisA"
+unzip -qq VisA_20220922.zip -d VisA_20220922
 
-echo "MPDD"
-unzip -qq MPDD.zip
+echo "Unzipping MPDD"
+unzip -qq MPDD.zip -d MPDD
 
-echo "BTech"
-unzip -qq BTech_Dataset_transformed.zip
+echo "Unzipping BTech"
+unzip -qq BTech_Dataset_transformed.zip -d BTech_Dataset_transformed
 
-echo "SDD"
-unzip -qq SDD_anomaly_detection.zip
+echo "Unzipping SDD"
+unzip -qq SDD_anomaly_detection.zip -d SDD_anomaly_detection
 
-echo "DAGM"
-unzip -qq DAGM_anomaly_detection.zip
+echo "Unzipping DAGM"
+unzip -qq DAGM_anomaly_detection.zip -d DAGM_anomaly_detection
 
-echo "DTD"
-unzip -qq DTD-Synthetic.zip
+echo "Unzipping DTD"
+unzip -qq DTD-Synthetic.zip -d DTD-Synthetic
 
 echo "Done!"
 

@@ -61,9 +61,9 @@ class BaseDataset(Dataset):
         if self.transforms is not None:
             img = self.transforms(img)
         return {
-            "img": img,
-            "cls_name": cls_name,
+            "x": img,
             "label": label,
+            "cls_name": cls_name,
             "img_path": img_path,
         }
 
