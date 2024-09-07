@@ -1,7 +1,6 @@
 import torch
 
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import PolynomialLR
 from transformers import Trainer, TrainingArguments
 
 from logger import logger
@@ -45,18 +44,18 @@ if __name__ == '__main__':
                               is_test=True)
 
     # Model
-    model = DINOv2Classifier(args.num_classes, backbone=args.dinov2_backbone, layers=1, device=args.device).to(args.device)
+    model = DINOv2Classifier(args.num_classes, backbone=args.dinov2_backbone, num_layers=4, device=args.device).to(args.device)
 
     # Optimizer
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
-    lr_scheduler = PolynomialLR(optimizer)
+    # lr_scheduler = PolynomialLR(optimizer)
     
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        optimizers=(optimizer, lr_scheduler),
+        optimizers=(optimizer, None),
         compute_metrics=compute_metrics
     )
 

@@ -6,23 +6,23 @@ class DINOv2Classifier(nn.Module):
     def __init__(self,
                  num_classes: int,
                  backbone: str = "dinov2_vits14", 
-                 layers: int = 1,
+                 num_layers: int = 1,
                  device: torch.device = torch.device('cuda'),
                  *args, 
                  **kwargs
                  ) -> None:
         super().__init__(*args, **kwargs)
         self.device = device
-        self.layers = layers
+        self.num_layers = num_layers
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
         self.classification_head = nn.Sequential(
-            nn.Linear((1 + layers) * self.backbone.embed_dim, 256),
+            nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, 256),
             nn.ReLU(),
             nn.Linear(256, num_classes)  
         )
 
     def forward(self, x, labels=None):
-        if self.layers == 1:
+        if self.num_layers == 1:
             x = self.backbone.forward_features(x)
             cls_token = x["x_norm_clstoken"]
             patch_tokens = x["x_norm_patchtokens"]
@@ -30,7 +30,7 @@ class DINOv2Classifier(nn.Module):
                 cls_token,
                 patch_tokens.mean(dim=1),
             ], dim=1)
-        elif self.layers == 4:
+        elif self.num_layers == 4:
             x = self.backbone.get_intermediate_layers(x, n=4, return_class_token=True)
             linear_input = torch.cat([
                 x[0][1],
@@ -40,7 +40,7 @@ class DINOv2Classifier(nn.Module):
                 x[3][0].mean(dim=1),
             ], dim=1)
         else:
-            assert False, f"Unsupported number of layers: {self.layers}"
+            raise ValueError(f"Unsupported number of layers: {self.num_layers}")
         logits = self.classification_head(linear_input)
         
         loss = None
