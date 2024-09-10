@@ -10,10 +10,15 @@ from utils.metrics import compute_metrics
 from data_loading.datasets import get_dataset
 from data_loading.processing import create_data_transformation_pipeline
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def create_training_args(args):   
     return TrainingArguments(
         output_dir=args.output_dir,
+        report_to="wandb",
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch_size,
@@ -22,7 +27,7 @@ def create_training_args(args):
         save_strategy="epoch",
         load_best_model_at_end=True,
         no_cuda=args.device != torch.device('cuda'),
-        warmup_steps=500
+        logging_steps=500
     )
 
 
@@ -48,7 +53,6 @@ if __name__ == '__main__':
 
     # Optimizer
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
-    # lr_scheduler = PolynomialLR(optimizer)
     
     trainer = Trainer(
         model=model,
