@@ -23,11 +23,11 @@ def create_training_args(args):
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch_size,
         learning_rate=args.learning_rate,
-        eval_strategy="epoch",
-        save_strategy="epoch",
         load_best_model_at_end=True,
         no_cuda=args.device != torch.device('cuda'),
-        logging_steps=500
+        logging_strategy="epoch",
+        eval_strategy="epoch",
+        save_strategy="epoch",
     )
 
 
