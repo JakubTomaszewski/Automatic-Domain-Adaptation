@@ -21,7 +21,7 @@ def create_data_transformation_pipeline(img_size: tuple[int, int] = (224, 224)):
         [
             ConvertImageDtype(torch.float32),
             GrayscaleToRGB(),
-            RandomResizedCrop(img_size, scale=(0.08, 1.0)),
+            RandomResizedCrop(img_size, ratio=(0.85, 1.0)),
             RandomHorizontalFlip(p=0.5),
             Resize(img_size),
             Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
