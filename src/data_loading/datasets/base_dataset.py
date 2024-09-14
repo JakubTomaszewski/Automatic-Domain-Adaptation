@@ -11,7 +11,7 @@ class DataSolver:
     def __init__(self, root_dir, class_names):
         self.root_dir = root_dir
         self.class_names = class_names
-        self.path = os.path.join(root_dir, "meta.json")
+        self.path = os.path.join(root_dir, "meta_split.json")
 
     def run(self):
         with open(self.path, "r") as f:
@@ -41,7 +41,7 @@ class BaseDataset(Dataset):
         solver = DataSolver(root_dir, class_names)
         meta_info = solver.run()
 
-        self.meta_info = meta_info["test"]
+        self.meta_info = meta_info["train"] if not self.is_test else meta_info["test"]
         for cls_name in self.class_names:
             self.data_all.extend(self.meta_info[cls_name])
 

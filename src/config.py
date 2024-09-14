@@ -11,11 +11,11 @@ def parse_args() -> dict:
     
     # Data
     parser.add_argument("--train_dataset", type=str, default="mvtec",
-                        choices=["mvtec"],
+                        choices=["mvtec", "visa"],
                         help="The name of the dataset to use (default: mvtec)")
-    parser.add_argument("--val_dataset", type=str, default="visa",
-                        choices=["visa"],
-                        help="The name of the dataset to use (default: visa)")
+    parser.add_argument("--val_dataset", type=str, default="mvtec",
+                        choices=["mvtec", "visa"],
+                        help="The name of the dataset to use (default: mvtec)")
     parser.add_argument("--num_classes", type=int, default=2,
                         help="The number of classes in the dataset (default: 2)")
     
