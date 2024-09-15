@@ -1,8 +1,11 @@
 import os
 import json
+import torch
+import numpy as np
 
 from torchvision.io import read_image
 from torch.utils.data import Dataset
+from sklearn.utils.class_weight import compute_class_weight
 
 from typing import Union
 
@@ -79,3 +82,9 @@ class BaseDataset(Dataset):
         #     img = Image.open(img_path).convert("RGB")
         img = read_image(img_path)
         return img
+
+    def get_class_weights(self):
+        class_weights = []
+        labels = [data_point["anomaly"] for data_point in self.data_all]
+        class_weights = compute_class_weight("balanced", classes=np.unique(labels), y=labels)
+        return torch.Tensor(class_weights)

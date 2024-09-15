@@ -1,6 +1,7 @@
 import torch
 
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import PolynomialLR
 from transformers import Trainer, TrainingArguments
 
 from logger import logger
@@ -36,6 +37,8 @@ if __name__ == '__main__':
     training_args = create_training_args(args)
 
     logger.info(f"Training arguments: {training_args}")
+    logger.info(f"Training dataset: {args.train_dataset}")
+    logger.info(f"Validation dataset: {args.val_dataset}")
 
     # Transformation pipeline
     transforms = create_data_transformation_pipeline(args.img_size)
@@ -48,18 +51,26 @@ if __name__ == '__main__':
                               transforms=transforms,
                               is_test=True)
 
+    class_weights = train_dataset.get_class_weights() if args.weight_classes else None
+
     # Model
-    model = DINOv2Classifier(args.num_classes, backbone=args.dinov2_backbone, num_layers=4, device=args.device).to(args.device)
+    model = DINOv2Classifier(num_classes=args.num_classes,
+                             backbone=args.dinov2_backbone,
+                             class_weights=class_weights,
+                             num_layers=4, 
+                             device=args.device
+                             ).to(args.device)
 
     # Optimizer
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
+    lr_scheduler = PolynomialLR(optimizer)
     
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        optimizers=(optimizer, None),
+        optimizers=(optimizer, lr_scheduler),
         compute_metrics=compute_metrics
     )
 

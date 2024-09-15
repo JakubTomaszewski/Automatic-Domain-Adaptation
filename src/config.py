@@ -8,7 +8,11 @@ DATA_ROOT_DIR = './data'
 
 def parse_args() -> dict:
     parser = ArgumentParser()
-    
+
+    # General
+    parser.add_argument("--seed", type=int, default=42,
+                        help="The seed for the random number generator (default: 42)")
+
     # Data
     parser.add_argument("--train_dataset", type=str, default="mvtec",
                         choices=["mvtec", "visa"],
@@ -42,5 +46,7 @@ def parse_args() -> dict:
                         help="The learning rate for training (default: 1e-3)")
     parser.add_argument("--img_size", type=tuple, default=(224, 224),
                         help="The size of the images (default: (224, 224))")
+    parser.add_argument("--weight_classes", action="store_true", default=False,
+                        help="Whether to weight the classes in the loss function (default: False)")
     
     return parser.parse_args()

@@ -6,6 +6,7 @@ class DINOv2Classifier(nn.Module):
     def __init__(self,
                  num_classes: int,
                  backbone: str = "dinov2_vits14", 
+                 class_weights: torch.Tensor = None,
                  num_layers: int = 1,
                  device: torch.device = torch.device('cuda'),
                  *args, 
@@ -13,15 +14,10 @@ class DINOv2Classifier(nn.Module):
                  ) -> None:
         super().__init__(*args, **kwargs)
         self.device = device
+        self.class_weights = class_weights
         self.num_layers = num_layers
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
-        self.classification_head = nn.Sequential(
-            nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, 512),
-            nn.ReLU(),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Linear(256, num_classes)
-        )
+        self.classification_head = nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, num_classes)
 
     def forward(self, x, labels=None):
         if self.num_layers == 1:
@@ -47,7 +43,7 @@ class DINOv2Classifier(nn.Module):
         
         loss = None
         if labels is not None:
-            loss = nn.CrossEntropyLoss()(logits, labels)
+            loss = nn.CrossEntropyLoss(weight=self.class_weights)(logits, labels)
         return {"logits": logits, "loss": loss} if loss is not None else {"logits": logits}
     
     def predict(self, x):
