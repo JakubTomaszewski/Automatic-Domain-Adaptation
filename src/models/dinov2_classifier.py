@@ -14,8 +14,8 @@ class DINOv2Classifier(nn.Module):
                  ) -> None:
         super().__init__(*args, **kwargs)
         self.device = device
-        self.class_weights = class_weights
         self.num_layers = num_layers
+        self.class_weights = class_weights.to(device) if class_weights is not None else None
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
         self.classification_head = nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, num_classes)
 
