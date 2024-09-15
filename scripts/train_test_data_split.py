@@ -1,4 +1,3 @@
-import os
 import json
 
 from sklearn.model_selection import train_test_split
@@ -24,7 +23,8 @@ if __name__ == '__main__':
         labels = [data_point["anomaly"] for data_point in data]
         X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, stratify=labels, random_state=42)
         
-        print(f"Class: {class_id}, num positive labels train: {sum(y_train)}, num positive labels test: {sum(y_test)}")
+        print(f"Class: {class_id}, num positive labels train: {sum(y_train)}, num negative labels train: {len(y_train) - sum(y_train)}")
+        print(f"Class: {class_id}, num positive labels test: {sum(y_test)}, num negative labels test: {len(y_test) - sum(y_test)}")
         
         metadata_split["train"][class_id] = X_train
         metadata_split["test"][class_id] = X_test
