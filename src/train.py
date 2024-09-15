@@ -51,7 +51,7 @@ if __name__ == '__main__':
                               transforms=transforms,
                               is_test=True)
 
-    class_weights = train_dataset.get_class_weights().to if args.weight_classes else None
+    class_weights = train_dataset.get_class_weights() if args.weight_classes else None
 
     # Model
     model = DINOv2Classifier(num_classes=args.num_classes,
