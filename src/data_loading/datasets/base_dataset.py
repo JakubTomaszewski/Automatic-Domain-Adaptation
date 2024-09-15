@@ -3,7 +3,7 @@ import json
 import torch
 import numpy as np
 
-from torchvision.io import read_image
+from PIL import Image
 from torch.utils.data import Dataset
 from sklearn.utils.class_weight import compute_class_weight
 
@@ -75,12 +75,7 @@ class BaseDataset(Dataset):
 
     def load_image(self, img_path):
         """Loads images using torch read_image function"""
-        # if img_path.endswith(".tif"):
-        #     img = cv2.imread(img_path)
-        #     img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        # else:
-        #     img = Image.open(img_path).convert("RGB")
-        img = read_image(img_path)
+        img = Image.open(img_path).convert("RGB")
         return img
 
     def get_class_weights(self):

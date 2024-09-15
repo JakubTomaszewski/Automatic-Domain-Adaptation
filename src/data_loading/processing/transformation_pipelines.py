@@ -7,7 +7,7 @@ from torchvision.transforms import (
     Normalize,
     RandomHorizontalFlip,
     RandomResizedCrop,
-    RandomCrop,
+    ToTensor
 )
 from .transforms import GrayscaleToRGB
 
@@ -19,6 +19,7 @@ IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 def create_data_transformation_pipeline(img_size: tuple[int, int] = (224, 224)):
     return Compose(
         [
+            ToTensor(),
             ConvertImageDtype(torch.float32),
             GrayscaleToRGB(),
             RandomResizedCrop(img_size, ratio=(0.85, 1.0)),
