@@ -17,7 +17,13 @@ class DINOv2Classifier(nn.Module):
         self.num_layers = num_layers
         self.class_weights = class_weights.to(device) if class_weights is not None else None
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
-        self.classification_head = nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, num_classes)
+        self.classification_head = nn.Sequential(
+            nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes)
+        )
 
     def forward(self, x, labels=None):
         if self.num_layers == 1:
