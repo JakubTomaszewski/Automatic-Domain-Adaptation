@@ -15,10 +15,10 @@ def parse_args() -> dict:
 
     # Data
     parser.add_argument("--train_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa"],
+                        choices=["mvtec", "visa", "brain_mri", "headct"],
                         help="The name of the dataset to use (default: mvtec)")
     parser.add_argument("--val_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa"],
+                        choices=["mvtec", "visa", "brain_mri", "headct"],
                         help="The name of the dataset to use (default: mvtec)")
     parser.add_argument("--num_classes", type=int, default=2,
                         help="The number of classes in the dataset (default: 2)")
@@ -36,8 +36,8 @@ def parse_args() -> dict:
     parser.add_argument('--device', type=available_torch_device, default='cuda',
                         choices=[torch.device('cpu'), torch.device('cuda'), torch.device('mps')],
                         help='Device used for computation (default: cpu)')
-    parser.add_argument("--epochs", type=int, default=20,
-                        help="The number of epochs to train (default: 5)")
+    parser.add_argument("--epochs", type=int, default=10,
+                        help="The number of epochs to train (default: 10)")
     parser.add_argument("--batch_size", type=int, default=32,
                         help="The batch size for training (default: 32)")
     parser.add_argument("--eval_batch_size", type=int, default=32,
