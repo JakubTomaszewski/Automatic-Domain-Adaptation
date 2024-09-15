@@ -1,7 +1,6 @@
 import torch
 
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import PolynomialLR
 from transformers import Trainer, TrainingArguments
 
 from logger import logger
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                               transforms=transforms,
                               is_test=True)
 
-    class_weights = train_dataset.get_class_weights() if args.weight_classes else None
+    class_weights = train_dataset.get_class_weights().to if args.weight_classes else None
 
     # Model
     model = DINOv2Classifier(num_classes=args.num_classes,
@@ -63,14 +62,13 @@ if __name__ == '__main__':
 
     # Optimizer
     optimizer = AdamW(model.parameters(), lr=args.learning_rate, betas=(0.5, 0.999))
-    lr_scheduler = PolynomialLR(optimizer)
     
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=val_dataset,
-        optimizers=(optimizer, lr_scheduler),
+        optimizers=(optimizer, None),
         compute_metrics=compute_metrics
     )
 
