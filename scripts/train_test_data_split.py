@@ -20,7 +20,7 @@ if __name__ == '__main__':
         "test": {}
     }
     for class_id, data in metadata.items():
-        labels = [data_point["anomaly"] for data_point in data]
+        labels = [data_point["label"] for data_point in data]
         X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, stratify=labels, random_state=42)
         
         print(f"Class: {class_id}, num positive labels train: {sum(y_train)}, num negative labels train: {len(y_train) - sum(y_train)}")
