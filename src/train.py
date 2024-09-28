@@ -18,7 +18,7 @@ load_dotenv()
 def create_training_args(args):   
     return TrainingArguments(
         output_dir=args.output_dir,
-        report_to="wandb",
+        # report_to="wandb",
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch_size,
@@ -45,15 +45,17 @@ if __name__ == '__main__':
     # Dataset
     train_dataset = get_dataset(args.train_dataset,
                                 transforms=transforms,
-                                is_test=False)
+                                is_test=False,
+                                meta_file=args.meta_file)
     val_dataset = get_dataset(args.val_dataset,
                               transforms=transforms,
-                              is_test=True)
+                              is_test=True,
+                              meta_file=args.meta_file)
 
     class_weights = train_dataset.get_class_weights() if args.weight_classes else None
 
     # Model
-    model = DINOv2Classifier(num_classes=args.num_classes,
+    model = DINOv2Classifier(num_classes=train_dataset.num_classes,
                              backbone=args.dinov2_backbone,
                              class_weights=class_weights,
                              num_layers=4, 

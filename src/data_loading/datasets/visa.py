@@ -27,12 +27,14 @@ class VisaDataset(BaseDataset):
     def __init__(self,
                  root_dir: str = VISA_ROOT,
                  class_names: list[str] = VISA_CLS_NAMES,
+                 meta_file: str = "meta_split.json",
                  transforms: callable = None,
                  is_test: bool = False,
                  ) -> None:
         super(VisaDataset, self).__init__(
             root_dir=root_dir,
             class_names=class_names,
+            meta_file=meta_file,
             transforms=transforms,
             is_test=is_test,
         )

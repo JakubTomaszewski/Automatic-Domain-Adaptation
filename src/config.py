@@ -1,4 +1,5 @@
 import torch
+
 from argparse import ArgumentParser
 from utils import available_torch_device
 
@@ -14,15 +15,15 @@ def parse_args() -> dict:
                         help="The seed for the random number generator (default: 42)")
 
     # Data
+    parser.add_argument("--meta_file", type=str, default="meta_split.json",
+                        help="The name of the dataset meta file containing paths to the train images (default: meta_split.json)")
     parser.add_argument("--train_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa", "brain_mri", "headct"],
+                        choices=["mvtec", "visa", "brain_mri", "headct", "flowers"],
                         help="The name of the dataset to use (default: mvtec)")
     parser.add_argument("--val_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa", "brain_mri", "headct"],
+                        choices=["mvtec", "visa", "brain_mri", "headct", "flowers"],
                         help="The name of the dataset to use (default: mvtec)")
-    parser.add_argument("--num_classes", type=int, default=2,
-                        help="The number of classes in the dataset (default: 2)")
-    
+
     # Model
     parser.add_argument("--dinov2_backbone", type=str, default="dinov2_vits14",
                         choices=["dinov2_vits14", "dinov2_vitb14", "dinov2_vitl14", "dinov2_vitg14",

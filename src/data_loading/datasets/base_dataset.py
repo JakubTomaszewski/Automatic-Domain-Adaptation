@@ -11,10 +11,10 @@ from typing import Union
 
 
 class DataSolver:
-    def __init__(self, root_dir, class_names):
+    def __init__(self, root_dir, class_names, meta_file):
         self.root_dir = root_dir
         self.class_names = class_names
-        self.path = os.path.join(root_dir, "meta_split.json")
+        self.path = os.path.join(root_dir, meta_file)
 
     def run(self):
         with open(self.path, "r") as f:
@@ -32,6 +32,7 @@ class BaseDataset(Dataset):
     def __init__(self, 
                  root_dir: Union[str, os.PathLike], 
                  class_names: list[str], 
+                 meta_file: str = "meta_split.json",
                  transforms: callable = None,
                  is_test: bool  = False
                  ) -> None:
@@ -39,9 +40,10 @@ class BaseDataset(Dataset):
         self.transforms = transforms
         self.data_all = []
         self.class_names = class_names
+        self.num_classes = len(class_names)
         self.is_test = is_test
 
-        solver = DataSolver(root_dir, class_names)
+        solver = DataSolver(root_dir, class_names, meta_file)
         meta_info = solver.run()
 
         self.meta_info = meta_info["train"] if not self.is_test else meta_info["test"]
@@ -56,7 +58,7 @@ class BaseDataset(Dataset):
     def __getitem__(self, index):
         data = self.data_all[index]
         cls_name = data["cls_name"]
-        label = data["anomaly"]  # 1 for anomaly, 0 for normal
+        label = data["label"]
 
         img_path = os.path.join(self.root_dir, data["img_path"])
         img = self.load_image(img_path)
@@ -80,6 +82,6 @@ class BaseDataset(Dataset):
 
     def get_class_weights(self):
         class_weights = []
-        labels = [data_point["anomaly"] for data_point in self.data_all]
+        labels = [data_point["label"] for data_point in self.data_all]
         class_weights = compute_class_weight("balanced", classes=np.unique(labels), y=labels)
         return torch.Tensor(class_weights)

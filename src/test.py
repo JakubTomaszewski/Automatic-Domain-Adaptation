@@ -18,13 +18,14 @@ if __name__ == '__main__':
     # Dataset
     dataset = get_dataset(args.dataset_name,
                           transforms=transforms,
-                          is_test=True)
+                          is_test=True,
+                          meta_file=args.meta_file)
     
     # Dataloader
     dataloader = DataLoader(dataset, args.batch_size, shuffle=True)
     
     # Model
-    model = DINOv2Classifier(args.num_classes, backbone=args.dinov2_backbone, layers=1, device=args.device).to(args.device)
+    model = DINOv2Classifier(dataset.num_classes, backbone=args.dinov2_backbone, layers=1, device=args.device).to(args.device)
 
     model.eval()
     for idx, data in enumerate(dataloader):
