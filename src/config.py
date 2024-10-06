@@ -17,11 +17,11 @@ def parse_args() -> dict:
     # Data
     parser.add_argument("--meta_file", type=str, default="meta_split.json",
                         help="The name of the dataset meta file containing paths to the train images (default: meta_split.json)")
-    parser.add_argument("--train_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa", "brain_mri", "headct", "flowers"],
+    parser.add_argument("--train_dataset", type=str,
+                        choices=["birds", "flowers", "cifar10", "mvtec", "visa", "brain_mri", "headct"],
                         help="The name of the dataset to use (default: mvtec)")
-    parser.add_argument("--val_dataset", type=str, default="mvtec",
-                        choices=["mvtec", "visa", "brain_mri", "headct", "flowers"],
+    parser.add_argument("--val_dataset", type=str,
+                        choices=["birds", "flowers", "cifar10", "mvtec", "visa", "brain_mri", "headct"],
                         help="The name of the dataset to use (default: mvtec)")
 
     # Model
@@ -43,7 +43,7 @@ def parse_args() -> dict:
                         help="The batch size for training (default: 32)")
     parser.add_argument("--eval_batch_size", type=int, default=32,
                         help="The batch size for evaluation (default: 32)")
-    parser.add_argument("--learning_rate", "-lr", type=float, default=1e-3,
+    parser.add_argument("--learning_rate", "-lr", type=float, default=0.001,
                         help="The learning rate for training (default: 1e-3)")
     parser.add_argument("--img_size", type=tuple, default=(224, 224),
                         help="The size of the images (default: (224, 224))")

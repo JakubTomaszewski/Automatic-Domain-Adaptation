@@ -1,1 +1,1 @@
-from .transformation_pipelines import create_data_transformation_pipeline
+from .transformation_pipelines import create_data_transformation_pipeline, create_data_augmentation_pipeline

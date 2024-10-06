@@ -8,7 +8,7 @@ from config import parse_args
 from models import DINOv2Classifier
 from utils.metrics import compute_metrics
 from data_loading.datasets import get_dataset
-from data_loading.processing import create_data_transformation_pipeline
+from data_loading.processing import create_data_transformation_pipeline, create_data_augmentation_pipeline
 
 from dotenv import load_dotenv
 
@@ -18,7 +18,7 @@ load_dotenv()
 def create_training_args(args):   
     return TrainingArguments(
         output_dir=args.output_dir,
-        # report_to="wandb",
+        report_to="wandb",
         num_train_epochs=args.epochs,
         per_device_train_batch_size=args.batch_size,
         per_device_eval_batch_size=args.eval_batch_size,
@@ -41,10 +41,12 @@ if __name__ == '__main__':
 
     # Transformation pipeline
     transforms = create_data_transformation_pipeline(args.img_size)
+    augmentations = create_data_augmentation_pipeline(args.img_size)
     
     # Dataset
     train_dataset = get_dataset(args.train_dataset,
                                 transforms=transforms,
+                                augmentations=augmentations,
                                 is_test=False,
                                 meta_file=args.meta_file)
     val_dataset = get_dataset(args.val_dataset,
@@ -58,7 +60,7 @@ if __name__ == '__main__':
     model = DINOv2Classifier(num_classes=train_dataset.num_classes,
                              backbone=args.dinov2_backbone,
                              class_weights=class_weights,
-                             num_layers=4, 
+                             num_layers=1,
                              device=args.device
                              ).to(args.device)
 

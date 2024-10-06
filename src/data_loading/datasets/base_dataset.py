@@ -34,10 +34,12 @@ class BaseDataset(Dataset):
                  class_names: list[str], 
                  meta_file: str = "meta_split.json",
                  transforms: callable = None,
+                 augmentations: callable = None,
                  is_test: bool  = False
                  ) -> None:
         self.root_dir = root_dir
         self.transforms = transforms
+        self.augmentations = augmentations
         self.data_all = []
         self.class_names = class_names
         self.num_classes = len(class_names)
@@ -65,8 +67,10 @@ class BaseDataset(Dataset):
 
         if self.transforms is not None:
             img = self.transforms(img)
+        if self.augmentations is not None and not self.is_test:
+            img = self.augmentations(img)
         return {
-            "x": img,
+            "pixel_values": img,
             "label": label,
             "cls_name": cls_name,
             "img_path": img_path,
