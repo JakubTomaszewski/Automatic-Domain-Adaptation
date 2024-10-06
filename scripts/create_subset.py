@@ -10,22 +10,23 @@ import numpy as np
 
 from argparse import ArgumentParser
 
+
 if __name__ == '__main__':
     # load the meta_split.json file
     # select N samples for each class
     # copy the test samples to the new meta_subset.json file
     # save the new meta_subset.json file
-    
+
     parser = ArgumentParser()
     parser.add_argument("--dataset_dir", type=str, required=True)
     parser.add_argument("--samples_per_class", type=int, required=True)
     parser.add_argument("--random_seed", type=int, default=42)
     args = parser.parse_args()
-    
+
     np.random.seed(args.random_seed)
-    
+
     subset_meta = {"train": {}, "test": {}}
-    
+
     with open(os.path.join(args.dataset_dir, "meta_split.json"), "r") as f:
         meta = json.load(f)
     
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     
     subset_meta["test"] = meta["test"]
     
-    with open(os.path.join(args.dataset_dir, "meta_subset.json"), "w") as f:
+    with open(os.path.join(args.dataset_dir, f"meta_subset_{args.samples_per_class}.json"), "w") as f:
         json.dump(subset_meta, f)
 
-    print(f"New meta_subset.json file saved to {os.path.join(args.dataset_dir, 'meta_subset.json')}")
+    print(f"New meta_subset.json file saved to {os.path.join(args.dataset_dir, f'meta_subset_{args.samples_per_class}.json')}")

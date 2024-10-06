@@ -57,6 +57,8 @@ if __name__ == '__main__':
     parser.add_argument("--dataset_dir", type=str, required=True)
     parser.add_argument("--data_folder", type=str, default="train")
     parser.add_argument("--train_test_split", action="store_true")
+    parser.add_argument("--max_classes", type=int, default=None)
+    parser.add_argument("--sort", action="store_true")
     
     args = parser.parse_args()
     
@@ -66,13 +68,14 @@ if __name__ == '__main__':
     }
     
     data_path = os.path.join(args.dataset_dir, args.data_folder)
-    class_names = os.listdir(data_path)
+    class_names = [d for d in os.listdir(data_path) if os.path.isdir(os.path.join(data_path, d))]
+    class_names = sorted(class_names) if args.sort else class_names
     
     for class_id, class_name in enumerate(class_names):
+        if args.max_classes is not None and class_id >= args.max_classes:
+            break
+        
         class_dir = os.path.join(data_path, class_name)
-        if not os.path.isdir(class_dir):
-            print(f"Skipping {class_dir} since it is not a directory")
-            continue
         
         class_dict = defaultdict(list)
         
