@@ -17,25 +17,29 @@ class DINOv2Classifier(nn.Module):
         self.num_layers = num_layers
         self.class_weights = class_weights.to(device) if class_weights is not None else None
         self.backbone = torch.hub.load("facebookresearch/dinov2", backbone, pretrained=True).to(device)
-        self.classification_head = nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, num_classes)
+        self.classification_head = nn.Linear((1 + self.num_layers) * self.backbone.embed_dim, num_classes).to(device)
 
-    def forward(self, x, labels=None):
+        # Disable backbone gradients
+        for param in self.backbone.parameters():
+            param.requires_grad = False
+
+    def forward(self, pixel_values, labels=None):
         if self.num_layers == 1:
-            x = self.backbone.forward_features(x)
-            cls_token = x["x_norm_clstoken"]
-            patch_tokens = x["x_norm_patchtokens"]
+            pixel_values = self.backbone.forward_features(pixel_values)
+            cls_token = pixel_values["x_norm_clstoken"]
+            patch_tokens = pixel_values["x_norm_patchtokens"]
             linear_input = torch.cat([
                 cls_token,
                 patch_tokens.mean(dim=1),
             ], dim=1)
         elif self.num_layers == 4:
-            x = self.backbone.get_intermediate_layers(x, n=4, return_class_token=True)
+            pixel_values = self.backbone.get_intermediate_layers(pixel_values, n=4, return_class_token=True)
             linear_input = torch.cat([
-                x[0][1],
-                x[1][1],
-                x[2][1],
-                x[3][1],
-                x[3][0].mean(dim=1),
+                pixel_values[0][1],
+                pixel_values[1][1],
+                pixel_values[2][1],
+                pixel_values[3][1],
+                pixel_values[3][0].mean(dim=1),
             ], dim=1)
         else:
             raise ValueError(f"Unsupported number of layers: {self.num_layers}")
